@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📊 Stock Analysis - WebLLM Powered</title>
+    <link rel="stylesheet" href="/static/css/app.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- WebLLM via CDN -->
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mlc-ai/web-llm@0.2.77/+esm"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">📊</span>
+                    <div class="logo-text">
+                        <h1>Stock Analyzer</h1>
+                        <span class="logo-subtitle">WebLLM Powered AI Analysis</span>
+                    </div>
+                </div>
+                <div class="header-status">
+                    <span class="status-dot" id="serverStatus"></span>
+                    <span class="status-text" id="serverStatusText">Connecting...</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Left Panel: Configuration -->
+            <section class="panel config-panel" id="configPanel">
+                <div class="panel-header">
+                    <h2><span class="icon">⚙️</span> Configuration</h2>
+                </div>
+                
+                <div class="panel-body">
+                    <!-- Model Status -->
+                    <div class="form-group">
+                        <label><span class="label-icon">🧠</span> AI Model Status</label>
+                        <div class="model-status" id="modelStatus">
+                            <div class="model-status-bar" id="modelStatusBar">
+                                <div class="model-status-icon">⏳</div>
+                                <div class="model-status-text">
+                                    <span class="model-status-title">Loading WebLLM...</span>
+                                    <span class="model-status-detail" id="modelStatusDetail">Initializing WebGPU</span>
+                                </div>
+                            </div>
+                            <div class="model-progress-container" id="modelProgressContainer">
+                                <div class="model-progress-bar">
+                                    <div class="model-progress-fill" id="modelProgressFill"></div>
+                                </div>
+                                <span class="model-progress-text" id="modelProgressText">0%</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Stock Search -->
+                    <div class="form-group">
+                        <label for="stockSearch">
+                            <span class="label-icon">🔍</span> Search Stock
+                        </label>
+                        <div class="search-wrapper">
+                            <input 
+                                type="text" 
+                                id="stockSearch" 
+                                class="search-input" 
+                                placeholder="Type stock name or symbol..."
+                                autocomplete="off"
+                            />
+                            <div class="search-spinner" id="searchSpinner"></div>
+                            <div class="search-results" id="searchResults"></div>
+                        </div>
+                        <div class="selected-stock" id="selectedStock">
+                            <span class="selected-stock-placeholder">No stock selected</span>
+                        </div>
+                    </div>
+
+                    <!-- Popular Stocks -->
+                    <div class="form-group">
+                        <label><span class="label-icon">⭐</span> Popular Stocks</label>
+                        <div class="popular-stocks" id="popularStocks">
+                            <div class="popular-loading">Loading popular stocks...</div>
+                        </div>
+                    </div>
+
+                    <!-- Analysis Type -->
+                    <div class="form-group">
+                        <label for="analysisType">
+                            <span class="label-icon">🧠</span> Analysis Type
+                        </label>
+                        <div class="radio-group" id="analysisType">
+                            <label class="radio-card active" data-value="full">
+                                <input type="radio" name="analysis" value="full" checked hidden>
+                                <span class="radio-icon">🔬</span>
+                                <span class="radio-label">Full</span>
+                                <span class="radio-desc">Complete analysis</span>
+                            </label>
+                            <label class="radio-card" data-value="fundamental">
+                                <input type="radio" name="analysis" value="fundamental" hidden>
+                                <span class="radio-icon">📈</span>
+                                <span class="radio-label">Fundamental</span>
+                                <span class="radio-desc">Financials & ratios</span>
+                            </label>
+                            <label class="radio-card" data-value="technical">
+                                <input type="radio" name="analysis" value="technical" hidden>
+                                <span class="radio-icon">📉</span>
+                                <span class="radio-label">Technical</span>
+                                <span class="radio-desc">Charts & indicators</span>
+                            </label>
+                            <label class="radio-card" data-value="quick">
+                                <input type="radio" name="analysis" value="quick" hidden>
+                                <span class="radio-icon">⚡</span>
+                                <span class="radio-label">Quick</span>
+                                <span class="radio-desc">Brief overview</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Exchange -->
+                    <div class="form-group">
+                        <label for="exchange">
+                            <span class="label-icon">🏛️</span> Exchange
+                        </label>
+                        <div class="radio-group radio-group-sm" id="exchange">
+                            <label class="radio-card active" data-value="NSE">
+                                <input type="radio" name="exchange" value="NSE" checked hidden>
+                                <span class="radio-label">NSE</span>
+                            </label>
+                            <label class="radio-card" data-value="BSE">
+                                <input type="radio" name="exchange" value="BSE" hidden>
+                                <span class="radio-label">BSE</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Analyze Button -->
+                    <button class="btn-analyze" id="btnAnalyze" disabled>
+                        <span class="btn-icon">🚀</span>
+                        <span class="btn-text">Analyze Stock</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Right Panel: Results & Logs -->
+            <section class="panel results-panel" id="resultsPanel">
+                <div class="panel-header">
+                    <h2><span class="icon">📋</span> Analysis</h2>
+                    <div class="panel-header-actions">
+                        <button class="btn-icon-only" id="btnClearLogs" title="Clear logs" style="display:none;">
+                            <span>🗑️</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="panel-body">
+                    <!-- Welcome / Empty State -->
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">📊</div>
+                        <h3>Ready to Analyze</h3>
+                        <p>Select a stock and click <strong>Analyze Stock</strong> to begin.</p>
+                        <div class="empty-features">
+                            <div class="feature-item">
+                                <span>🔍</span> Search any NSE/BSE stock
+                            </div>
+                            <div class="feature-item">
+                                <span>🧠</span> WebLLM runs in your browser
+                            </div>
+                            <div class="feature-item">
+                                <span>📋</span> Real-time analysis logs
+                            </div>
+                            <div class="feature-item">
+                                <span>📄</span> Detailed reports
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Section -->
+                    <div class="progress-section" id="progressSection" style="display:none;">
+                        <!-- Progress Bar -->
+                        <div class="progress-container">
+                            <div class="progress-header">
+                                <span class="progress-phase" id="progressPhase">Initializing...</span>
+                                <span class="progress-percent" id="progressPercent">0%</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="progressFill"></div>
+                            </div>
+                        </div>
+
+                        <!-- Phase Indicators -->
+                        <div class="phase-indicators">
+                            <div class="phase-step" data-phase="data_fetch">
+                                <div class="phase-dot" id="phaseDot_data_fetch">1</div>
+                                <span class="phase-label">Data Fetch</span>
+                            </div>
+                            <div class="phase-connector"></div>
+                            <div class="phase-step" data-phase="ai_analysis">
+                                <div class="phase-dot" id="phaseDot_ai_analysis">2</div>
+                                <span class="phase-label">AI Analysis</span>
+                            </div>
+                            <div class="phase-connector"></div>
+                            <div class="phase-step" data-phase="report">
+                                <div class="phase-dot" id="phaseDot_report">3</div>
+                                <span class="phase-label">Report</span>
+                            </div>
+                        </div>
+
+                        <!-- Agent Logs -->
+                        <div class="logs-container">
+                            <div class="logs-header">
+                                <span>📜 Analysis Activity Log</span>
+                                <span class="log-count" id="logCount">0 events</span>
+                            </div>
+                            <div class="logs-viewport" id="logsViewport">
+                                <!-- Logs will be inserted here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div class="results-section" id="resultsSection" style="display:none;">
+                        <!-- Recommendation Banner -->
+                        <div class="recommendation-banner" id="recBanner">
+                            <div class="rec-content">
+                                <div class="rec-icon" id="recIcon">🎯</div>
+                                <div class="rec-details">
+                                    <div class="rec-action" id="recAction">HOLD</div>
+                                    <div class="rec-score" id="recScore">0.0/10</div>
+                                    <div class="rec-confidence" id="recConfidence">Low Confidence</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Analysis Summary -->
+                        <div class="analysis-summary" id="analysisSummary">
+                            <h3>📝 Analysis Summary</h3>
+                            <div class="summary-content" id="summaryContent"></div>
+                        </div>
+
+                        <!-- Key Metrics -->
+                        <div class="metrics-grid" id="metricsGrid"></div>
+
+                        <!-- Report Preview -->
+                        <div class="report-preview">
+                            <div class="report-preview-header">
+                                <h3>📄 Full Analysis Report</h3>
+                                <div class="report-actions">
+                                    <button class="btn-sm" id="btnCopyReport">
+                                        <span>📋</span> Copy
+                                    </button>
+                                    <button class="btn-sm" id="btnDownloadReport">
+                                        <span>⬇️</span> Download
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="report-content" id="reportContent">
+                                <div class="report-loading">Generating report...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error Section -->
+                    <div class="error-section" id="errorSection" style="display:none;">
+                        <div class="error-banner">
+                            <span class="error-icon">❌</span>
+                            <div class="error-content">
+                                <h3>Analysis Failed</h3>
+                                <p id="errorMessage">An error occurred during analysis.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <span>Indian Stock Market Analysis</span>
+            <span class="footer-sep">|</span>
+            <span>Powered by WebLLM + WebGPU</span>
+            <span class="footer-sep">|</span>
+            <span id="footerTime"></span>
+        </footer>
+    </div>
+
+    <script type="module" src="/static/js/app.js"></script>
+</body>
+</html>

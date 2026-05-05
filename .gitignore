@@ -1,0 +1,57 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Environment variables
+.env
+
+# Data files
+data/
+*.csv
+*.json
+*.pickle
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Generated reports
+reports/
+
+# Build artifacts
+dist/
+build/
+*.egg-info/
+
+# Cache directories
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Config files (may contain secrets)
+*.config
+*.cfg
+*.ini
+config.ini
+config.yaml
+config.yml
+*.toml
+
+# External dependencies / submodules
+screener-mcp/

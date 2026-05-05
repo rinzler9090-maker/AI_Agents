@@ -53,5 +53,3 @@ config.yaml
 config.yml
 *.toml
 
-# External dependencies / submodules
-screener-mcp/

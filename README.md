@@ -29,6 +29,8 @@ A sophisticated multi-agent system built with **AG2 (AutoGen)** for comprehensiv
 - **Yahoo Finance (yfinance)**: Real-time prices, historical data, news, technical indicators
 - **NSE/BSE**: Indian stock exchange data
 
+> **Screener MCP Server (Optional):** This project uses a local Screener.in unofficial API server for fetching fundamental data. You can set it up from the [screener-unofficial-api](https://github.com/sahiljani/screener-unofficial-api) repository. Clone and run it separately, then configure the connection in your `.env` file (see Configuration section below).
+
 ## Setup
 
 ```bash
